@@ -4,3 +4,6 @@ node_modules/
 *.log
 .idea/
 .vscode/
+.worktrees/
+__pycache__/
+*.pyc
