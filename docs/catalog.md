@@ -26,7 +26,7 @@
 
 ## Skills
 
-### Principles — auto-load when designing or writing code
+### Principles — consulted by reasoning agents when relevant triggers apply
 
 | Skill | Triggers |
 |---|---|
