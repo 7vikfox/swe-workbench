@@ -1,17 +1,14 @@
 
-name: SKILL.md
+name:language_python
 description: Python best practices, typing, async patterns, and packaging conventions
-triggers:
-  - ".py"
-  - "pyproject.toml"
-  - "requirements.txt"
-  - "setup.py"
-  - "python"
-  - "pytest"
-  - "mypy"
-  - "asyncio"
-  - "dataclass"
-  - "type hints"
+## Example
+
+```python
+def add(a, b):
+    return a + b
+
+print(add(2, 3))
+
 
 
 ## Error Handling
