@@ -1,6 +1,7 @@
 ---
 name: workflow-development
-description: Development workflow — full lifecycle from Branch → Implement → Verify → Review → Deliver. Auto-load when writing an implementation plan, creating a plan, finalizing a plan before ExitPlanMode, starting a feature branch, opening a PR, shipping a change, asking about branch naming or commit format, handing off work, or beginning any structured development task.
+description: Development workflow — full lifecycle from Branch → Implement → Verify → Review → Deliver. Activated by /swe-workbench:implement, /swe-workbench:design, /swe-workbench:refactor, /swe-workbench:debug, and /swe-workbench:test when the plan being authored modifies the codebase (Mode A) or when driving an implementation (Mode B). Skip for pure design / analysis output. Can also be invoked directly to author a Workflow section, run the 5-phase implementation flow, or orchestrate parallel agents (Mode C).
+orchestrator: true
 ---
 
 # Development Workflow
@@ -58,7 +59,7 @@ Also check CLAUDE.md for project-specific conventions.
 | `Cargo.toml` | `cargo fmt` | `cargo clippy` | `cargo test` |
 | `pyproject.toml` | `ruff format` or `black .` | `ruff check` | `pytest` |
 
-**PR template:** check `cat .github/pull_request_template.md 2>/dev/null` (and common variants). If it exists, **use it and fill every section**.
+**PR template:** check `cat .github/pull_request_template.md 2>/dev/null` (and common variants: `.github/PULL_REQUEST_TEMPLATE.md`, `docs/pull_request_template.md`). If found, record the **absolute path** — pass it to `gh pr create --body-file <path>` in Phase 5. Before invoking, replace the literal `Closes #` placeholder with the resolved issue (`Closes #123`) or remove it and write a standalone `Issue: N/A — <one-line reason>` line. Never leave `Closes #` empty.
 
 ## The 5 Phases
 
@@ -124,11 +125,13 @@ Act on feedback:
 
 Invoke `superpowers:finishing-a-development-branch`.
 
-**PR template rule:** if a template was detected in Project Detection, use it and fill every section. Skipping sections signals incomplete work to reviewers.
+**PR template rule:** if a template was detected in Project Detection, use `gh pr create --body-file <detected-path>` — fill every section and substitute the `Closes #` placeholder before invoking. Do **not** fall through to a heredoc body when a template exists. Only use the heredoc fallback if no template was found.
 
 ---
 
 ## Plan-Time Behavior (Mode A)
+
+**Gate:** Before rendering the Workflow section, confirm the plan introduces file edits (fix / make / implement). If the plan is a pure design recommendation or analysis with no codebase changes, return without modifying the plan.
 
 When writing or finalizing a plan, add a `## Workflow` section using the template at `templates/plan-workflow-section.md`. Substitute detected commands before saving.
 
@@ -157,7 +160,7 @@ When writing or finalizing a plan, add a `## Workflow` section using the templat
 | Run only tests (skip format/lint) | Run all three, in order |
 | Single giant commit | Group by logical change |
 | Guess at branch/commit conventions | Detect from `git branch -a` and `git log` first |
-| Plan without Workflow section | Always add the Workflow section (Mode A) |
+| Plan that introduces file edits without Workflow section | Always add the Workflow section (Mode A) — skip only for pure design / analysis output |
 | Jump straight to coding | Always start at Phase 1 |
 | Ignore PR template, use generic format | Check for PR template first; fill every section |
 
@@ -178,4 +181,4 @@ When writing or finalizing a plan, add a `## Workflow` section using the templat
 | "I'll just commit everything together" | Split into logical commits |
 | "Phase 2 sub-skill did everything" | Verify it provided evidence for Phases 3-4 |
 | "This is a small fix, no need for the full lifecycle" | Small fixes still need verify + review |
-| "The plan doesn't need a Workflow section" | It always does. Add one (Mode A). |
+| "The plan doesn't need a Workflow section" | If the plan introduces file edits, it does. Add one (Mode A). Skip only for pure design / analysis output. |

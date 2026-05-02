@@ -5,22 +5,28 @@
 | Command | Purpose |
 |---|---|
 | `/swe-workbench:review` | Review the current git diff — correctness, security, design, test gaps. |
+| `/swe-workbench:security-review` | Audit the current git diff for security vulnerabilities — OWASP Top 10, secrets, insecure APIs. |
 | `/swe-workbench:design <question>` | Consult the senior-engineer subagent for an architectural decision. |
 | `/swe-workbench:refactor <target>` | Behavior-preserving refactor via Fowler's catalog. |
 | `/swe-workbench:debug <symptom>` | Diagnose a bug or failing test via systematic-debugging, then minimal fix + regression test. |
+| `/swe-workbench:test <target>` | Write focused, behavioural tests in the target language's idiom. |
+| `/swe-workbench:implement <ticket or description>` | Drive a feature end-to-end — branch, plan, TDD build, verify, review, PR. Orchestrates the full 5-phase `workflow-development` lifecycle. |
+| `/swe-workbench:cleanup-merged [PR number]` | Remove the worktree, local branch, and remote branch for a merged PR. Defaults to the current branch. Squash-merge safe. |
 
 ## Subagents
 
 | Agent | When to invoke |
 |---|---|
 | `reviewer` | PR review, diff audit, post-feature sanity check. |
+| `security-auditor` | Depth-first security audit of a diff or file (OWASP Top 10, secrets, dependency CVEs). |
 | `senior-engineer` | Architecture decisions, service scoping, tradeoff analysis. |
 | `refactorer` | Cleaning up smells before adding a feature. |
 | `debugger` | Bug diagnosis and minimal fix — composes `superpowers:systematic-debugging`, layers principle lens. |
+| `test-writer` | Authoring tests for an existing function, module, or change set. |
 
 ## Skills
 
-### Principles — auto-load when designing or writing code
+### Principles — consulted by reasoning agents when relevant triggers apply
 
 | Skill | Triggers |
 |---|---|
@@ -45,6 +51,7 @@
 | Skill | Triggers | Delegation model |
 |---|---|---|
 | `workflow-development` | "implement this", "build this", "fix this bug", "execute plan", "orchestrate these issues". | Wraps the 5-phase lifecycle (Branch → Implement → Verify → Review → Deliver) around `superpowers:{using-git-worktrees, executing-plans, subagent-driven-development, test-driven-development, verification-before-completion, requesting-code-review, finishing-a-development-branch}`. Phase 4 dispatches both `superpowers:code-reviewer` (plan alignment) and the local `reviewer` subagent (diff correctness/security/design). Mode A plan template and Mode C orchestration live in companion files. |
+| `workflow-cleanup-merged` | "clean up merged branch", "remove worktree", "delete branch after merge", after a PR is merged. | Verifies merge via `gh pr view` (squash-merge safe), runs safety checks (dirty/unpushed/cwd-inside), removes the worktree, deletes the local branch with `git branch -D`, and deletes the remote branch. Invoked by `/swe-workbench:cleanup-merged` and by Mode C orchestration Step 7. |
 
 This skill is an orchestrator — it coordinates other skills rather than restating their content.
 
@@ -53,3 +60,4 @@ This skill is an orchestrator — it coordinates other skills rather than restat
 | Skill | Triggers | Delegation model |
 |---|---|---|
 | `ticket-context` | Jira keys (`[A-Z]+-\d+`), `atlassian.net/browse/...`, Confluence wiki URLs, `github.com/.../(issues\|pull)/N`, `#N` refs. | Invoked by command bodies as a prelude before subagent delegation. Fetches via `mcp__atlassian__*` and `gh` CLI. Returns structured context (title, summary, acceptance criteria, linked refs, recent comments). Does not act on the ticket — only resolves it. |
+

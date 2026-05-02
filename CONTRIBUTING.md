@@ -1,11 +1,15 @@
 # Contributing
 
+## Code of Conduct
+
+This project follows the [Contributor Covenant Code of Conduct](CODE_OF_CONDUCT.md). By participating, you agree to uphold it.
+
 ## Setup
 
 After cloning, run the setup script once:
 
 ```sh
-./setup.sh
+./scripts/setup.sh
 ```
 
 This sets `core.hooksPath` to `.githooks/`, activating the two local git hooks described below.
@@ -45,6 +49,25 @@ Use the PR template (`.github/PULL_REQUEST_TEMPLATE.md`). It requires:
 
 `.github/workflows/pr.yml` runs the same commit-format and issue-reference checks on every PR. Skipping local setup does not skip CI — it just shifts the failure to after you push.
 
+## Validator
+
+Run the plugin self-validator locally before pushing:
+
+```sh
+bash scripts/validate.sh
+```
+
+It checks:
+
+- `.claude-plugin/plugin.json` — JSON well-formedness, required fields (`name`, `version`, `description`).
+- `.claude-plugin/marketplace.json` — JSON well-formedness, `plugins[0].name` and `plugins[0].version` match `plugin.json`.
+- `hooks/hooks.json` — JSON well-formedness and structural shape.
+- `skills/*/SKILL.md` — flat layout (no nesting), required frontmatter (`name`, `description`), `name` matches directory name, ≤150-line cap (≤300 for skills with `orchestrator: true`).
+- `agents/*.md` — required frontmatter (`name`, `description`).
+- `commands/*.md` — required frontmatter (`description`).
+
+The same checks run in CI on every PR (`validate-plugin-files` job in `.github/workflows/pr.yml`).
+
 ## Testing locally
 
 ```sh
@@ -64,11 +87,21 @@ If a skill does not auto-trigger, refine the `description:` in its `SKILL.md` �
 
 **Skill directory layout**: Skills must live at `skills/<skill-name>/SKILL.md` — exactly one level deep. Claude Code's auto-discovery does not recurse into nested category subdirectories. Use a hyphenated prefix to preserve categorical grouping while meeting this constraint: `principle-*`, `language-*`, `workflow-*`. The `name:` field in the `SKILL.md` frontmatter must match the directory name exactly.
 
+## Cutting a release
+
+Run the release script from a clean `main`:
+
+```sh
+./scripts/release.sh patch   # or minor / major
+```
+
+It bumps both manifests, opens a PR, waits for CI to pass, auto-merges, then pushes a `v*.*.*` tag. The tag push triggers `.github/workflows/release.yml`, which validates the manifests and publishes a GitHub Release with auto-generated notes.
+
 ## `.githooks/` vs `hooks/hooks.json`
 
 These two directories share the same depth but serve different runtimes:
 
 | Path | Purpose |
 |---|---|
-| `.githooks/` | Git hooks (`commit-msg`, `pre-commit`) — invoked by git. |
+| `.githooks/` | Git hooks (`commit-msg`, `pre-commit`, `pre-push`) — invoked by git. |
 | `hooks/hooks.json` | Claude Code plugin runtime hooks — invoked by the Claude Code plugin system. |
