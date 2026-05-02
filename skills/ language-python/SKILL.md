@@ -1,5 +1,5 @@
 ---
-name:language-python
+name: language-python
 description: Python best practices, typing, async patterns, and packaging conventions
 ---
 
