@@ -49,6 +49,11 @@
 | `language-go` | `.go` files, `go.mod`, `go.sum`, keywords: Go, Golang, goroutine, channel, context. |
 | `language-rust` | `.rs` files, `Cargo.toml`, keywords: Rust, cargo, ownership, borrow checker, trait, lifetime. |
 | `language-typescript` | `.ts`, `.tsx`, `.js`, `.jsx`, `package.json`, keywords: TypeScript, Node, tsconfig. |
+| `language-python` | `.py`, `pyproject.toml`, `requirements.txt`, keywords: Python, pytest, asyncio, type hints. |
+| `language-java` | `.java`, `pom.xml`, `build.gradle`, keywords: Java, JVM, Spring, concurrency. |
+| `language-kotlin` | `.kt`, `build.gradle.kts`, keywords: Kotlin, coroutines, JVM, Android. |
+| `language-swift` | `.swift`, `Package.swift`, keywords: Swift, iOS, concurrency, protocols. |
+
 
 ### Workflows — auto-load during implementation
 
